@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чек-лист: Скрытые сексуальные сигналы</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            color: #9c27b0;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .question {
+            background-color: #f9f9f9;
+            border-left: 4px solid #9c27b0;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+            transition: all 0.3s ease;
+        }
+
+        .question:hover {
+            background-color: #f3e5f5;
+            transform: translateY(-2px);
+        }
+
+        .question h3 {
+            margin-top: 0;
+            color: #7b1fa2;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .option {
+            background-color: white;
+            border: 2px solid #e1bee7;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option:hover {
+            background-color: #f3e5f5;
+        }
+
+        .option.selected {
+            background-color: #9c27b0;
+            color: white;
+            border-color: #9c27b0;
+        }
+
+        .result-panel {
+            background-color: #f3e5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #7b1fa2;
+            margin: 10px 0;
+        }
+
+        .interpretation {
+            font-size: 1.1rem;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .btn {
+            background-color: #9c27b0;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto 10px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #7b1fa2;
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e1bee7;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #9c27b0;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Чек-лист: Скрытые сексуальные сигналы</h1>
+        <p class="subtitle">На основе книги "Скрытые сексуальные сигналы"</p>
+
+        <p>Ответьте на вопросы, выбирая наиболее подходящий вариант. Чек-лист поможет определить, нравитесь ли вы
+            девушке, на основе невербальных сигналов и скрытых признаков интереса.</p>
+
+        <div class="progress-text">Заполнено: <span id="completed">0</span> из <span id="total">5</span> вопросов</div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div id="questions-container">
+            <!-- Вопросы будут добавлены с помощью JavaScript -->
+        </div>
+
+        <button class="btn" id="calculate-btn" disabled>Узнать результат</button>
+
+        <div class="result-panel" id="result-panel">
+            <h2>Ваш результат</h2>
+            <div class="score" id="score">0 баллов</div>
+            <div class="interpretation" id="interpretation"></div>
+            <button class="btn" id="reset-btn">Пройти заново</button>
+        </div>
+
+        <div class="footer">
+            <p>Данный чек-лист основан на книге "Скрытые сексуальные сигналы" и предназначен для информационных целей.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Вопросы и варианты ответов с баллами
+            const questions = [
+                {
+                    id: 1,
+                    text: "Как часто девушка прикасается к вам во время разговора?",
+                    options: [
+                        { text: "Практически никогда", value: 0 },
+                        { text: "Изредка, случайные легкие прикосновения", value: 1 },
+                        { text: "Довольно часто, касается руки или плеча", value: 2 },
+                        { text: "Постоянно находит повод для тактильного контакта", value: 3 }
+                    ]
+                },
+                {
+                    id: 2,
+                    text: "Как долго она поддерживает зрительный контакт?",
+                    options: [
+                        { text: "Избегает смотреть в глаза", value: 0 },
+                        { text: "Смотрит в глаза время от времени", value: 1 },
+                        { text: "Часто смотрит в глаза и удерживает контакт", value: 2 },
+                        { text: "Пристально смотрит в глаза, 'сверлящим' взглядом", value: 3 }
+                    ]
+                },
+                {
+                    id: 3,
+                    text: "Как она реагирует на ваши прикосновения?",
+                    options: [
+                        { text: "Отстраняется или явно напрягается", value: 0 },
+                        { text: "Не проявляет особой реакции", value: 1 },
+                        { text: "Отвечает взаимным прикосновением", value: 2 },
+                        { text: "Специально создает ситуации для прикосновений", value: 3 }
+                    ]
+                },
+                {
+                    id: 4,
+                    text: "Как она сидит/стоит по отношению к вам?",
+                    options: [
+                        { text: "Развернута от вас, скрещенные руки и ноги", value: 0 },
+                        { text: "Нейтральная поза, не выражающая особого интереса", value: 1 },
+                        { text: "Развернута к вам, открытая поза", value: 2 },
+                        { text: "Наклоняется к вам, поза максимально открыта", value: 3 }
+                    ]
+                },
+                {
+                    id: 5,
+                    text: "Как она поправляет свою внешность в вашем присутствии?",
+                    options: [
+                        { text: "Не делает этого вообще", value: 0 },
+                        { text: "Изредка поправляет волосы или одежду", value: 1 },
+                        { text: "Часто поправляет волосы, касается губ, шеи", value: 2 },
+                        { text: "Делает явные приглашающие жесты: облизывает губы, медленно поправляет одежду", value: 3 }
+                    ]
+                },
+                {
+                    id: 6,
+                    text: "Замечали ли вы расширение её зрачков, когда она смотрит на вас?",
+                    options: [
+                        { text: "Нет, не замечал", value: 0 },
+                        { text: "Возможно, но не уверен", value: 1 },
+                        { text: "Да, иногда зрачки явно расширяются", value: 2 },
+                        { text: "Да, почти всегда её зрачки расширены при взгляде на меня", value: 3 }
+                    ]
+                },
+                {
+                    id: 7,
+                    text: "Начинает ли она неосознанно копировать ваши позы или жесты?",
+                    options: [
+                        { text: "Нет, никогда не замечал", value: 0 },
+                        { text: "Иногда совпадения, но редко", value: 1 },
+                        { text: "Да, часто копирует мои позы и движения", value: 2 },
+                        { text: "Копирует почти все мои жесты и позы с небольшой задержкой", value: 3 }
+                    ]
+                },
+                {
+                    id: 8,
+                    text: "Меняется ли тембр её голоса, когда она говорит с вами?",
+                    options: [
+                        { text: "Голос не меняется", value: 0 },
+                        { text: "Иногда кажется более тихим", value: 1 },
+                        { text: "Голос становится мягче и ниже", value: 2 },
+                        { text: "Заметно меняется на более глубокий и интимный тембр", value: 3 }
+                    ]
+                },
+                {
+                    id: 9,
+                    text: "Смеётся ли она над вашими шутками, даже если они не очень смешные?",
+                    options: [
+                        { text: "Нет, реагирует адекватно", value: 0 },
+                        { text: "Иногда улыбается", value: 1 },
+                        { text: "Часто смеется, даже над плоскими шутками", value: 2 },
+                        { text: "Смеется над всем, что я говорю, преувеличенно", value: 3 }
+                    ]
+                },
+                {
+                    id: 10,
+                    text: "Насколько близко она подходит к вам при разговоре?",
+                    options: [
+                        { text: "Держит дистанцию 1 метр и более", value: 0 },
+                        { text: "Обычная дистанция для разговора", value: 1 },
+                        { text: "Подходит ближе, чем к другим людям", value: 2 },
+                        { text: "Нарушает интимную зону (менее 50 см) без необходимости", value: 3 }
+                    ]
+                },
+                {
+                    id: 11,
+                    text: "Оставляет ли она свои вещи рядом с вами как 'метку территории'?",
+                    options: [
+                        { text: "Нет, всегда забирает свои вещи", value: 0 },
+                        { text: "Иногда забывает", value: 1 },
+                        { text: "Часто оставляет рядом телефон, сумку или напиток", value: 2 },
+                        { text: "Специально размещает вещи так, чтобы они были ближе к вам", value: 3 }
+                    ]
+                },
+                {
+                    id: 12,
+                    text: "Старается ли она привлечь ваше внимание, когда вы общаетесь с другими?",
+                    options: [
+                        { text: "Нет, не обращает внимания", value: 0 },
+                        { text: "Иногда перехватывает взгляд", value: 1 },
+                        { text: "Вмешивается в разговор или привлекает внимание действиями", value: 2 },
+                        { text: "Явно демонстрирует ревность или пытается переключить внимание на себя", value: 3 }
+                    ]
+                },
+                {
+                    id: 13,
+                    text: "Часто ли она случайно касается вас 'нечаянно'?",
+                    options: [
+                        { text: "Никогда", value: 0 },
+                        { text: "Редко, может быть случайностью", value: 1 },
+                        { text: "Довольно часто, как будто 'случайно'", value: 2 },
+                        { text: "Очень часто, очевидно намеренно", value: 3 }
+                    ]
+                },
+                {
+                    id: 14,
+                    text: "Как она улыбается вам?",
+                    options: [
+                        { text: "Редко улыбается или улыбка формальная", value: 0 },
+                        { text: "Обычная социальная улыбка", value: 1 },
+                        { text: "Широкая искренняя улыбка", value: 2 },
+                        { text: "Игривая улыбка с прищуром глаз", value: 3 }
+                    ]
+                },
+                {
+                    id: 15,
+                    text: "Задерживает ли она взгляд на ваших губах во время разговора?",
+                    options: [
+                        { text: "Нет, смотрит только в глаза", value: 0 },
+                        { text: "Изредка переводит взгляд на губы", value: 1 },
+                        { text: "Часто смотрит на губы", value: 2 },
+                        { text: "Задерживает взгляд на губах дольше, чем обычно", value: 3 }
+                    ]
+                },
+                {
+                    id: 16,
+                    text: "Как она демонстрирует свою шею/запястья в вашем присутствии?",
+                    options: [
+                        { text: "Не демонстрирует специально", value: 0 },
+                        { text: "Иногда поправляет воротник или браслет", value: 1 },
+                        { text: "Часто обнажает шею, откидывая волосы", value: 2 },
+                        { text: "Демонстративно показывает уязвимые зоны (шею, запястья)", value: 3 }
+                    ]
+                },
+                {
+                    id: 17,
+                    text: "Играет ли она с предметами (бокалом, волосами, украшениями) когда разговаривает с вами?",
+                    options: [
+                        { text: "Нет, ведет себя естественно", value: 0 },
+                        { text: "Иногда перебирает что-то в руках", value: 1 },
+                        { text: "Часто играет с предметами, особенно с бокалом или волосами", value: 2 },
+                        { text: "Демонстративно и медленно играет с предметами, привлекая внимание", value: 3 }
+                    ]
+                },
+                {
+                    id: 18,
+                    text: "Как она реагирует, когда вы входите в комнату?",
+                    options: [
+                        { text: "Не замечает или игнорирует", value: 0 },
+                        { text: "Быстро смотрит и продолжает заниматься своими делами", value: 1 },
+                        { text: "Оборачивается, улыбается, меняет позу", value: 2 },
+                        { text: "Меняет поведение, поправляется, подходит к вам", value: 3 }
+                    ]
+                },
+                {
+                    id: 19,
+                    text: "Насколько она расслаблена в вашем присутствии?",
+                    options: [
+                        { text: "Напряжена, скованна", value: 0 },
+                        { text: "Нейтральна, как с другими людьми", value: 1 },
+                        { text: "Расслаблена, комфортно себя чувствует", value: 2 },
+                        { text: "Чрезмерно расслаблена, демонстрирует уязвимые позы", value: 3 }
+                    ]
+                },
+                {
+                    id: 20,
+                    text: "Как она реагирует на случайный физический контакт в толпе или транспорте?",
+                    options: [
+                        { text: "Сразу отстраняется", value: 0 },
+                        { text: "Держится нейтрально", value: 1 },
+                        { text: "Не отстраняется, позволяет контакту сохраниться", value: 2 },
+                        { text: "Сама инициирует легкий контакт в таких ситуациях", value: 3 }
+                    ]
+                },
+                {
+                    id: 21,
+                    text: "Поднимает ли она брови, когда видит вас?",
+                    options: [
+                        { text: "Нет", value: 0 },
+                        { text: "Слегка", value: 1 },
+                        { text: "Да, заметно приподнимает брови", value: 2 },
+                        { text: "Делает это быстро и возвращает в нормальное положение (вспышка бровей)", value: 3 }
+                    ]
+                },
+                {
+                    id: 22,
+                    text: "Как она наклоняет голову во время разговора?",
+                    options: [
+                        { text: "Не наклоняет или держит прямо", value: 0 },
+                        { text: "Иногда слегка наклоняет", value: 1 },
+                        { text: "Часто наклоняет голову, обнажая шею", value: 2 },
+                        { text: "Наклоняет голову в игривой или кокетливой манере", value: 3 }
+                    ]
+                },
+                {
+                    id: 23,
+                    text: "Как быстро она отвечает на ваши сообщения?",
+                    options: [
+                        { text: "Отвечает с задержкой или не всегда", value: 0 },
+                        { text: "Отвечает в течение нескольких часов", value: 1 },
+                        { text: "Отвечает достаточно быстро (в течение часа)", value: 2 },
+                        { text: "Отвечает почти мгновенно", value: 3 }
+                    ]
+                },
+                {
+                    id: 24,
+                    text: "Ищет ли она поводы для продолжения общения?",
+                    options: [
+                        { text: "Нет, сама не инициирует", value: 0 },
+                        { text: "Иногда задает дополнительные вопросы", value: 1 },
+                        { text: "Часто ищет поводы продолжить разговор", value: 2 },
+                        { text: "Всегда находит причины для следующей встречи или разговора", value: 3 }
+                    ]
+                },
+                {
+                    id: 25,
+                    text: "Как она слушает вас?",
+                    options: [
+                        { text: "Отвлекается, смотрит по сторонам", value: 0 },
+                        { text: "Слушает, но без особого энтузиазма", value: 1 },
+                        { text: "Внимательно слушает, кивает, поддерживает", value: 2 },
+                        { text: "Полностью поглощена разговором, ловит каждое слово", value: 3 }
+                    ]
+                },
+                {
+                    id: 26,
+                    text: "Запоминает ли она мелкие детали о вас?",
+                    options: [
+                        { text: "Нет, часто переспрашивает", value: 0 },
+                        { text: "Помнит основные факты", value: 1 },
+                        { text: "Помнит многие детали", value: 2 },
+                        { text: "Помнит даже мельчайшие подробности, о которых вы сами забыли", value: 3 }
+                    ]
+                },
+                {
+                    id: 27,
+                    text: "Как она двигается в вашем присутствии?",
+                    options: [
+                        { text: "Скованно, осторожно", value: 0 },
+                        { text: "Естественно, как обычно", value: 1 },
+                        { text: "Пластично, грациозно", value: 2 },
+                        { text: "Демонстративно подчеркивает движения бедер и походку", value: 3 }
+                    ]
+                },
+                {
+                    id: 28,
+                    text: "Часто ли она упоминает вас в разговоре с другими?",
+                    options: [
+                        { text: "Практически никогда", value: 0 },
+                        { text: "Иногда упоминает в контексте", value: 1 },
+                        { text: "Довольно часто ссылается на вас или ваши мнения", value: 2 },
+                        { text: "Постоянно упоминает вас даже без повода", value: 3 }
+                    ]
+                },
+                {
+                    id: 29,
+                    text: "Как она реагирует на ваши недостатки или ошибки?",
+                    options: [
+                        { text: "Критикует или игнорирует", value: 0 },
+                        { text: "Нейтрально принимает", value: 1 },
+                        { text: "Находит им оправдание или не обращает внимания", value: 2 },
+                        { text: "Находит их 'милыми' или 'особенными'", value: 3 }
+                    ]
+                },
+                {
+                    id: 30,
+                    text: "Насколько она открыта в общении с вами?",
+                    options: [
+                        { text: "Закрыта, мало рассказывает о себе", value: 0 },
+                        { text: "Делится общей информацией", value: 1 },
+                        { text: "Доверяет личные подробности", value: 2 },
+                        { text: "Полностью открыта, делится сокровенными мыслями и чувствами", value: 3 }
+                    ]
+                }
+            ];
+
+            const questionsContainer = document.getElementById('questions-container');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const resultPanel = document.getElementById('result-panel');
+            const scoreElement = document.getElementById('score');
+            const interpretationElement = document.getElementById('interpretation');
+            const resetBtn = document.getElementById('reset-btn');
+            const progressElement = document.getElementById('progress');
+            const completedElement = document.getElementById('completed');
+            const totalElement = document.getElementById('total');
+
+            let userAnswers = {};
+            let totalQuestions = questions.length;
+
+            // Устанавливаем общее количество вопросов
+            totalElement.textContent = totalQuestions;
+
+            // Генерируем вопросы
+            questions.forEach((question, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.className = 'question';
+                questionElement.innerHTML = `
+                    <h3>Вопрос ${question.id}: ${question.text}</h3>
+                    <div class="options" id="options-${question.id}">
+                        ${question.options.map((option, optionIndex) => `
+                            <div class="option" data-question="${question.id}" data-value="${option.value}">
+                                ${option.text}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                questionsContainer.appendChild(questionElement);
+            });
+
+            // Обработка выбора ответа
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function () {
+                    const questionId = this.getAttribute('data-question');
+                    const value = parseInt(this.getAttribute('data-value'));
+
+                    // Снимаем выделение с других вариантов этого вопроса
+                    const questionOptions = document.querySelectorAll(`[data-question="${questionId}"]`);
+                    questionOptions.forEach(opt => opt.classList.remove('selected'));
+
+                    // Выделяем выбранный вариант
+                    this.classList.add('selected');
+
+                    // Сохраняем ответ
+                    userAnswers[questionId] = value;
+
+                    // Обновляем прогресс
+                    updateProgress();
+
+                    // Активируем кнопку, если ответы на все вопросы даны
+                    if (Object.keys(userAnswers).length === totalQuestions) {
+                        calculateBtn.disabled = false;
+                    }
+                });
+            });
+
+            // Функция обновления прогресса
+            function updateProgress() {
+                const answeredCount = Object.keys(userAnswers).length;
+                completedElement.textContent = answeredCount;
+
+                const progressPercent = (answeredCount / totalQuestions) * 100;
+                progressElement.style.width = `${progressPercent}%`;
+            }
+
+            // Вычисление результата
+            calculateBtn.addEventListener('click', function () {
+                let totalScore = 0;
+
+                // Суммируем баллы
+                for (const questionId in userAnswers) {
+                    totalScore += userAnswers[questionId];
+                }
+
+                // Максимально возможный балл
+                const maxScore = totalQuestions * 3;
+                const percentScore = (totalScore / maxScore) * 100;
+
+                // Отображаем результат
+                scoreElement.textContent = `${totalScore} из ${maxScore} баллов`;
+
+                // Интерпретация результата
+                let interpretation = "";
+                let interpretationColor = "";
+
+                if (percentScore < 27) {
+                    interpretation = "Скорее всего, девушка не проявляет к вам сексуального интереса. Её поведение указывает на нейтральное или даже отстраненное отношение. Возможно, стоит обратить внимание на другие признаки или дать отношениям больше времени для развития.";
+                    interpretationColor = "#ffebee";
+                } else if (percentScore < 54) {
+                    interpretation = "Есть некоторые признаки интереса, но они недостаточно выражены. Девушка может испытывать симпатию, но пока не готова проявлять её более открыто. Продолжайте наблюдать за её поведением в разных ситуациях.";
+                    interpretationColor = "#fff3e0";
+                } else if (percentScore < 72) {
+                    interpretation = "Вы, скорее всего, нравитесь этой девушке. Она проявляет заметные признаки интереса через невербальные сигналы. Вероятно, она открыта к более близкому общению и ждёт вашей инициативы.";
+                    interpretationColor = "#e8f5e9";
+                } else {
+                    interpretation = "Девушка определённо проявляет к вам сильный сексуальный интерес. Её невербальные сигналы явно указывают на влечение. Она открыта для более близких отношений и, вероятно, ждёт вашего следующего шага.";
+                    interpretationColor = "#f3e5f5";
+                }
+
+                interpretationElement.textContent = interpretation;
+                interpretationElement.style.backgroundColor = interpretationColor;
+
+                // Показываем панель с результатом
+                resultPanel.style.display = 'block';
+
+                // Прокручиваем к результату
+                resultPanel.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // Сброс результатов
+            resetBtn.addEventListener('click', function () {
+                // Сбрасываем ответы
+                userAnswers = {};
+
+                // Снимаем выделение со всех вариантов
+                document.querySelectorAll('.option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+
+                // Деактивируем кнопку
+                calculateBtn.disabled = true;
+
+                // Скрываем панель с результатом
+                resultPanel.style.display = 'none';
+
+                // Сбрасываем прогресс
+                updateProgress();
+
+                // Прокручиваем к началу
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Инициализация прогресса
+            updateProgress();
+        });
+    </script>
+</body>
+
+</html>
